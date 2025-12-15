@@ -1,5 +1,6 @@
 package com.example.darkonboarding.ui.screens.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,11 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.RocketLaunch
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.Workspaces
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
@@ -33,51 +30,88 @@ import com.example.darkonboarding.ui.theme.TextPrimary
 import com.example.darkonboarding.ui.theme.TextSecondary
 
 @Composable
-fun HomeScreen() {
-    val recent = listOf(
+fun HomeScreen(
+    onQuestionClick: (String) -> Unit
+) {
+    val recentQuestions = listOf(
         "Как получить доступ к репозиторию?",
         "Кто мой тимлид?",
         "Процесс code review"
     )
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 18.dp),
-        contentPadding = PaddingValues(top = 22.dp, bottom = 110.dp),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 18.dp,
+            end = 18.dp,
+            top = 22.dp,
+            bottom = 110.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+
+        // ===== Заголовок =====
         item {
-            Text("Добро пожаловать!", color = TextPrimary)
-            Spacer(Modifier.height(6.dp))
-            Text("Задавайте вопросы и изучайте компанию с помощью\nAI-ассистента", color = TextSecondary)
+            Text(
+                text = "Добро пожаловать!",
+                color = TextPrimary
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = "Задавайте вопросы и изучайте компанию с помощью AI-ассистента",
+                color = TextSecondary
+            )
         }
 
-        item { SearchBarStub() }
-
+        // ===== Поиск (заглушка) =====
         item {
-            Text("Недавние вопросы", color = TextSecondary, modifier = Modifier.padding(top = 6.dp))
-        }
-
-        items(recent) { q ->
             GlassCard(
                 modifier = Modifier.fillMaxWidth(),
-                padding = PaddingValues(horizontal = 16.dp, vertical = 16.dp)
-            ) { Text(q, color = TextPrimary) }
+                padding = PaddingValues(14.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = TextSecondary
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Text(
+                        text = "Задай вопрос, чтобы начать...",
+                        color = TextSecondary
+                    )
+                }
+            }
         }
 
+        // ===== Недавние вопросы =====
         item {
-            Text("Быстрые темы", color = TextSecondary, modifier = Modifier.padding(top = 6.dp))
+            Text(
+                text = "Недавние вопросы",
+                color = TextSecondary,
+                modifier = Modifier.padding(top = 8.dp)
+            )
         }
 
-        item {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    QuickTopicCard("Как устроена\nкоманда", Icons.Default.People, Modifier.weight(1f))
-                    QuickTopicCard("Старт проекта", Icons.Default.RocketLaunch, Modifier.weight(1f))
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    QuickTopicCard("Инфраструктура", Icons.Default.Storage, Modifier.weight(1f))
-                    QuickTopicCard("Процессы\nкомпании", Icons.Default.Workspaces, Modifier.weight(1f))
-                }
+        items(recentQuestions) { question ->
+            GlassCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onQuestionClick(question)
+                    },
+                padding = PaddingValues(16.dp)
+            ) {
+                Text(
+                    text = question,
+                    color = TextPrimary
+                )
             }
         }
     }

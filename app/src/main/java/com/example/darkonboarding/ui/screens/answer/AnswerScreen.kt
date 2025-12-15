@@ -7,12 +7,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ExpandMore
@@ -28,50 +28,62 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.darkonboarding.data.SourceItem
 import com.example.darkonboarding.ui.components.GlassCard
 import com.example.darkonboarding.ui.components.GradientPillButton
 import com.example.darkonboarding.ui.theme.TextPrimary
 import com.example.darkonboarding.ui.theme.TextSecondary
 
 @Composable
-fun AnswerScreen() {
+fun AnswerScreen(
+    question: String
+) {
     val sources = listOf(
         SourceItem("Confluence", "confluence.company.com/wiki"),
         SourceItem("Git", "github.company.com/docs"),
-        SourceItem("OpenMetadata", "metadata.company.com"),
+        SourceItem("OpenMetadata", "metadata.company.com")
     )
 
     var expanded by remember { mutableStateOf(false) }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 18.dp),
+        modifier = Modifier.padding(horizontal = 18.dp),
         contentPadding = PaddingValues(top = 18.dp, bottom = 120.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+
+        // ───────────── ВОПРОС ─────────────
         item {
             GlassCard(padding = PaddingValues(16.dp)) {
-                Text("Я    Как устроена команда разработки?", color = TextPrimary)
+                Text(
+                    text = "Я    $question",
+                    color = TextPrimary
+                )
             }
         }
 
+        // ───────────── ОТВЕТ ─────────────
         item {
             GlassCard(padding = PaddingValues(16.dp)) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = TextPrimary)
+                        Icon(
+                            Icons.Default.AutoAwesome,
+                            contentDescription = null,
+                            tint = TextPrimary
+                        )
                         Spacer(Modifier.width(10.dp))
                         Text("Краткий ответ", color = TextPrimary)
                     }
 
                     Text(
-                        "Команда разработки состоит из 4 кросс-функциональных команд, " +
-                                "каждая включает frontend, backend, QA и дизайнера. " +
-                                "Команды работают по Scrum методологии с двухнедельными спринтами.",
+                        text = "Команда разработки состоит из 4 кросс-функциональных команд. " +
+                                "Каждая включает frontend, backend, QA и дизайнера. " +
+                                "Команды работают по Scrum с двухнедельными спринтами.",
                         color = TextPrimary
                     )
 
-                    Divider(color = TextSecondary.copy(alpha = 0.22f))
+                    Divider(color = TextSecondary.copy(alpha = 0.25f))
 
                     Row(
                         modifier = Modifier
@@ -81,13 +93,18 @@ fun AnswerScreen() {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Подробнее", color = TextSecondary)
-                        Icon(Icons.Default.ExpandMore, contentDescription = null, tint = TextSecondary)
+                        Icon(
+                            Icons.Default.ExpandMore,
+                            contentDescription = null,
+                            tint = TextSecondary
+                        )
                     }
 
                     AnimatedVisibility(visible = expanded) {
                         Text(
-                            "Здесь можно показать расширенную версию ответа, примеры команд, " +
-                                    "ссылки на регламенты и контактные точки.",
+                            text = "Каждая команда автономна и отвечает за полный цикл разработки: " +
+                                    "от планирования и реализации до поддержки и улучшений. " +
+                                    "Коммуникация между командами осуществляется через синхронизации и общие гайды.",
                             color = TextSecondary
                         )
                     }
@@ -95,25 +112,47 @@ fun AnswerScreen() {
             }
         }
 
-        item { Text("Источники", color = TextSecondary, modifier = Modifier.padding(top = 4.dp)) }
+        // ───────────── ИСТОЧНИКИ ─────────────
+        item {
+            Text(
+                text = "Источники",
+                color = TextSecondary,
+                modifier = Modifier.padding(top = 6.dp)
+            )
+        }
 
-        items(sources.size) { i ->
-            val s = sources[i]
-            GlassCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(16.dp)) {
+        items(sources) { source ->
+            GlassCard(
+                modifier = Modifier.fillMaxWidth(),
+                padding = PaddingValues(16.dp)
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Link, contentDescription = null, tint = TextSecondary)
+                    Icon(
+                        Icons.Default.Link,
+                        contentDescription = null,
+                        tint = TextSecondary
+                    )
                     Spacer(Modifier.width(12.dp))
                     Column {
-                        Text(s.title, color = TextPrimary)
-                        Text(s.subtitle, color = TextSecondary)
+                        Text(source.title, color = TextPrimary)
+                        Text(source.subtitle, color = TextSecondary)
                     }
                 }
             }
         }
 
+        // ───────────── КНОПКА ─────────────
         item {
-            Spacer(Modifier.height(10.dp))
-            GradientPillButton(text = "Уточнить вопрос") { }
+            Spacer(Modifier.height(8.dp))
+            GradientPillButton(
+                text = "Уточнить вопрос",
+                onClick = { /* TODO */ }
+            )
         }
     }
 }
+
+private data class SourceItem(
+    val title: String,
+    val subtitle: String
+)
