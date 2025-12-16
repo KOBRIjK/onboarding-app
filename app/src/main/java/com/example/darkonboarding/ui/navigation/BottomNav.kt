@@ -61,14 +61,23 @@ fun BottomNavBar(navController: NavController) {
             NavigationBarItem(
                 selected = selected,
                 onClick = {
-                    navController.navigate(tab.route.value) {
-                        popUpTo(Route.Home.value) {
-                            inclusive = false
-                            saveState = false
+                    if (tab.route == Route.Answer && selected) {
+                        navController.navigate(Route.Answer.value) {
+                            popUpTo(Route.Answer.value) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
                         }
+                    } else {
+                        navController.navigate(tab.route.value) {
+                            popUpTo(Route.Home.value) {
+                                inclusive = false
+                                saveState = true
+                            }
 
-                        launchSingleTop = true
-                        restoreState = false
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 },
                 icon = tab.icon,
