@@ -16,8 +16,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.darkonboarding.ui.theme.NavBarBg
 
 data class BottomTab(
@@ -32,15 +33,6 @@ fun NavController.navigateToTab(
     selected: Boolean
 ) {
     when {
-        tab == Route.Answer && selected -> {
-            navigate(Route.Answer.value) {
-                popUpTo(Route.Answer.routeWithOptionalArg) {
-                    inclusive = true
-                }
-                launchSingleTop = true
-            }
-        }
-
         tab == Route.Home -> {
             navigate(Route.Home.value) {
                 popUpTo(graph.findStartDestination().id) {
@@ -53,7 +45,7 @@ fun NavController.navigateToTab(
 
         else -> {
             navigate(tab.value) {
-                popUpTo(Route.Home.value) { saveState = true }
+                popUpTo(graph.findStartDestination().id) { saveState = true }
                 launchSingleTop = true
                 restoreState = true
             }
@@ -69,7 +61,7 @@ fun BottomNavBar(navController: NavController) {
             BottomTab(Route.Home, "Главная") {
                 Icon(Icons.Default.Home, contentDescription = null)
             },
-            BottomTab(Route.Answer, "Ответ") {
+            BottomTab(Route.AnswerTab, "Ответ") {
                 Icon(Icons.Default.ChatBubbleOutline, contentDescription = null)
             },
             BottomTab(Route.Tasks, "Задачи") {
@@ -85,13 +77,18 @@ fun BottomNavBar(navController: NavController) {
     }
 
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = backStackEntry?.destination?.route
+    val currentDestination = backStackEntry?.destination
 
     NavigationBar(containerColor = NavBarBg) {
 
         tabs.forEach { tab ->
-            val selected = remember(currentRoute) {
-                currentRoute?.startsWith(tab.route.value) == true
+            val selected = remember(currentDestination) {
+                currentDestination
+                    ?.hierarchy
+                    ?.any { destination ->
+                        destination.route == tab.route.value ||
+                            (tab.route == Route.AnswerTab && destination.route == Route.AnswerRoot.value)
+                    } == true
             }
 
             NavigationBarItem(

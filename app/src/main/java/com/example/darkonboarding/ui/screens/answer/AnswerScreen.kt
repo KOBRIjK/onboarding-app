@@ -1,6 +1,8 @@
 package com.example.darkonboarding.ui.screens.answer
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,16 +26,16 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import com.example.darkonboarding.ui.components.GlassCard
 import com.example.darkonboarding.ui.components.GradientPillButton
@@ -44,12 +46,12 @@ import com.example.darkonboarding.ui.theme.TextSecondary
 fun AnswerScreen(
     question: String,
     autoFocus: Boolean = false,
-    onBackToHome: () -> Unit = {}
+    onQuestionChange: (String) -> Unit,
+    onBack: (() -> Unit)? = null
 ) {
-    var questionText by rememberSaveable { mutableStateOf(question) }
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(autoFocus) {
         if (autoFocus) {
             focusRequester.requestFocus()
         }
@@ -63,10 +65,9 @@ fun AnswerScreen(
 
     var expanded by remember { mutableStateOf(false) }
 
-    BackHandler {
-        onBackToHome()
+    BackHandler(enabled = onBack != null) {
+        onBack?.invoke()
     }
-
 
     LazyColumn(
         modifier = Modifier.padding(horizontal = 18.dp),
@@ -87,8 +88,8 @@ fun AnswerScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(focusRequester),
-                        value = questionText,
-                        onValueChange = { questionText = it },
+                        value = question,
+                        onValueChange = onQuestionChange,
                         placeholder = {
                             Text(
                                 text = "Задай вопрос, чтобы начать...",
