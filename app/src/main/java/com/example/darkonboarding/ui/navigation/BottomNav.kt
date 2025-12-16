@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.darkonboarding.ui.theme.AccentCyan
 import com.example.darkonboarding.ui.theme.NavBarBg
@@ -70,10 +71,11 @@ fun BottomNavBar(navController: NavController) {
                         }
                     } else {
                         navController.navigate(tab.route.value) {
-                            popUpTo(Route.Home.value) {
-                                inclusive = false
-                                saveState = true
-                            }
+                            val startDestinationId = navController.graph
+                                .findStartDestination()
+                                .id
+
+                            popUpTo(startDestinationId) { saveState = true }
 
                             launchSingleTop = true
                             restoreState = true
