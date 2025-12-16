@@ -33,6 +33,16 @@ fun AppNavHost(
                     navController.navigate(
                         Route.Answer.createRoute(question)
                     )
+                },
+                onSearchClick = {
+                    navController.navigate(Route.Answer.value) {
+                        popUpTo(Route.Home.value) {
+                            inclusive = false
+                            saveState = false
+                        }
+                        launchSingleTop = true
+                        restoreState = false
+                    }
                 }
             )
         }
@@ -40,7 +50,8 @@ fun AppNavHost(
         // ───────── ANSWER (из BottomBar) ─────────
         composable(Route.Answer.value) {
             AnswerScreen(
-                question = "Задай вопрос или выбери его на главном экране"
+                question = "",
+                autoFocus = true
             )
         }
 
@@ -57,7 +68,10 @@ fun AppNavHost(
                 ?.getString(Route.Answer.QUESTION_ARG)
                 .orEmpty()
 
-            AnswerScreen(question = question)
+            AnswerScreen(
+                question = question,
+                autoFocus = false
+            )
         }
 
         composable(Route.Tasks.value) { TasksScreen() }

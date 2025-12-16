@@ -20,13 +20,20 @@ import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.darkonboarding.ui.components.GlassCard
 import com.example.darkonboarding.ui.components.GradientPillButton
@@ -35,8 +42,18 @@ import com.example.darkonboarding.ui.theme.TextSecondary
 
 @Composable
 fun AnswerScreen(
-    question: String
+    question: String,
+    autoFocus: Boolean = false
 ) {
+    var questionText by rememberSaveable(question) { mutableStateOf(question) }
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(autoFocus) {
+        if (autoFocus) {
+            focusRequester.requestFocus()
+        }
+    }
+
     val sources = listOf(
         SourceItem("Confluence", "confluence.company.com/wiki"),
         SourceItem("Git", "github.company.com/docs"),
@@ -54,10 +71,38 @@ fun AnswerScreen(
         // ───────────── ВОПРОС ─────────────
         item {
             GlassCard(padding = PaddingValues(16.dp)) {
-                Text(
-                    text = "Я    $question",
-                    color = TextPrimary
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(text = "Я", color = TextSecondary)
+                    TextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
+                        value = questionText,
+                        onValueChange = { questionText = it },
+                        placeholder = {
+                            Text(
+                                text = "Задай вопрос, чтобы начать...",
+                                color = TextSecondary
+                            )
+                        },
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = TextSecondary,
+                            unfocusedIndicatorColor = TextSecondary.copy(alpha = 0.6f),
+                            disabledIndicatorColor = Color.Transparent,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            cursorColor = TextPrimary
+                        )
+                    )
+                }
             }
         }
 
