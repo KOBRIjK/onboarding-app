@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.darkonboarding.ui.theme.AccentCyan
 import com.example.darkonboarding.ui.theme.NavBarBg
@@ -62,14 +61,10 @@ fun BottomNavBar(navController: NavController) {
             NavigationBarItem(
                 selected = selected,
                 onClick = {
-                    val startDestinationId = navController.graph
-                        .findStartDestination()
-                        .id
-
                     when {
                         tab.route == Route.Answer && selected -> {
                             navController.navigate(Route.Answer.value) {
-                                popUpTo(Route.Answer.value) {
+                                popUpTo(Route.Answer.routeWithOptionalArg) {
                                     inclusive = true
                                 }
                                 launchSingleTop = true
@@ -79,7 +74,7 @@ fun BottomNavBar(navController: NavController) {
 
                         tab.route == Route.Home -> {
                             navController.navigate(Route.Home.value) {
-                                popUpTo(startDestinationId) {
+                                popUpTo(Route.Home.value) {
                                     inclusive = false
                                     saveState = true
                                 }
@@ -90,7 +85,7 @@ fun BottomNavBar(navController: NavController) {
 
                         else -> {
                             navController.navigate(tab.route.value) {
-                                popUpTo(startDestinationId) { saveState = true }
+                                popUpTo(Route.Home.value) { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true
                             }

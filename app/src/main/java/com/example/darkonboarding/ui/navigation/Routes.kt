@@ -8,10 +8,11 @@ sealed class Route(val value: String) {
 
     data object Answer : Route("answer") {
         const val QUESTION_ARG = "question"
-        val routeWithArg = "answer/{$QUESTION_ARG}"
+        val routeWithOptionalArg = "answer?${QUESTION_ARG}={${QUESTION_ARG}}"
+        val routeWithArg = routeWithOptionalArg
 
-        fun createRoute(question: String): String =
-            "answer/${Uri.encode(question)}"
+        fun createRoute(question: String?): String =
+            if (question.isNullOrEmpty()) value else "$value?$QUESTION_ARG=${Uri.encode(question)}"
     }
 
     data object Tasks : Route("tasks")

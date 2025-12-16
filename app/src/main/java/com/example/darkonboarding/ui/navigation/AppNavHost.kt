@@ -35,7 +35,7 @@ fun AppNavHost(
                     )
                 },
                 onSearchClick = {
-                    navController.navigate(Route.Answer.value) {
+                    navController.navigate(Route.Answer.createRoute(null)) {
                         popUpTo(Route.Home.value) {
                             inclusive = false
                             saveState = false
@@ -48,19 +48,12 @@ fun AppNavHost(
         }
 
         // ───────── ANSWER (из BottomBar) ─────────
-        composable(Route.Answer.value) {
-            AnswerScreen(
-                question = "",
-                autoFocus = true
-            )
-        }
-
-        // ───────── ANSWER (из Home с вопросом) ─────────
         composable(
-            route = Route.Answer.routeWithArg,
+            route = Route.Answer.routeWithOptionalArg,
             arguments = listOf(
                 navArgument(Route.Answer.QUESTION_ARG) {
                     type = NavType.StringType
+                    defaultValue = ""
                 }
             )
         ) { backStackEntry ->
@@ -70,7 +63,7 @@ fun AppNavHost(
 
             AnswerScreen(
                 question = question,
-                autoFocus = false
+                autoFocus = question.isEmpty()
             )
         }
 
