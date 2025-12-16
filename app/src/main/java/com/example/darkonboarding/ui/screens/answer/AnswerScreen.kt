@@ -43,12 +43,13 @@ import com.example.darkonboarding.ui.theme.TextSecondary
 @Composable
 fun AnswerScreen(
     question: String,
-    autoFocus: Boolean = false
+    autoFocus: Boolean = false,
+    onBackToHome: () -> Unit = {}
 ) {
-    var questionText by rememberSaveable(question) { mutableStateOf(question) }
+    var questionText by rememberSaveable { mutableStateOf(question) }
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(autoFocus) {
+    LaunchedEffect(Unit) {
         if (autoFocus) {
             focusRequester.requestFocus()
         }
@@ -61,6 +62,11 @@ fun AnswerScreen(
     )
 
     var expanded by remember { mutableStateOf(false) }
+
+    BackHandler {
+        onBackToHome()
+    }
+
 
     LazyColumn(
         modifier = Modifier.padding(horizontal = 18.dp),
@@ -138,9 +144,16 @@ fun AnswerScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Подробнее", color = TextSecondary)
+
+                        val rotation by animateFloatAsState(
+                            targetValue = if (expanded) 180f else 0f,
+                            label = "expand"
+                        )
+
                         Icon(
                             Icons.Default.ExpandMore,
                             contentDescription = null,
+                            modifier = Modifier.rotate(rotation),
                             tint = TextSecondary
                         )
                     }

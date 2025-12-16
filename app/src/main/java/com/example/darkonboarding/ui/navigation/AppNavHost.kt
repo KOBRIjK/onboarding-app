@@ -63,7 +63,15 @@ fun AppNavHost(
 
             AnswerScreen(
                 question = question,
-                autoFocus = question.isEmpty()
+                autoFocus = question.isEmpty(),
+                onBackToHome = {
+                    if (!navController.popBackStack(Route.Home.value, inclusive = false)) {
+                        navController.navigate(Route.Home.value) {
+                            popUpTo(Route.Home.value) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                }
             )
         }
 

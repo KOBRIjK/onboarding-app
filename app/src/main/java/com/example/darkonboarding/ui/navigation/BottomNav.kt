@@ -13,10 +13,11 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.darkonboarding.ui.theme.AccentCyan
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.darkonboarding.ui.theme.NavBarBg
 
 data class BottomTab(
@@ -25,26 +26,63 @@ data class BottomTab(
     val icon: @Composable () -> Unit
 )
 
+
+fun NavController.navigateToTab(
+    tab: Route,
+    selected: Boolean
+) {
+    when {
+        tab == Route.Answer && selected -> {
+            navigate(Route.Answer.value) {
+                popUpTo(Route.Answer.routeWithOptionalArg) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+            }
+        }
+
+        tab == Route.Home -> {
+            navigate(Route.Home.value) {
+                popUpTo(graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+
+        else -> {
+            navigate(tab.value) {
+                popUpTo(Route.Home.value) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+    }
+}
+
 @Composable
 fun BottomNavBar(navController: NavController) {
 
-    val tabs = listOf(
-        BottomTab(Route.Home, "Главная") {
-            Icon(Icons.Default.Home, contentDescription = null)
-        },
-        BottomTab(Route.Answer, "Ответ") {
-            Icon(Icons.Default.ChatBubbleOutline, contentDescription = null)
-        },
-        BottomTab(Route.Tasks, "Задачи") {
-            Icon(Icons.Default.Checklist, contentDescription = null)
-        },
-        BottomTab(Route.Docs, "Документы") {
-            Icon(Icons.Default.Description, contentDescription = null)
-        },
-        BottomTab(Route.Profile, "Профиль") {
-            Icon(Icons.Default.Person, contentDescription = null)
-        }
-    )
+    val tabs = remember {
+        listOf(
+            BottomTab(Route.Home, "Главная") {
+                Icon(Icons.Default.Home, contentDescription = null)
+            },
+            BottomTab(Route.Answer, "Ответ") {
+                Icon(Icons.Default.ChatBubbleOutline, contentDescription = null)
+            },
+            BottomTab(Route.Tasks, "Задачи") {
+                Icon(Icons.Default.Checklist, contentDescription = null)
+            },
+            BottomTab(Route.Docs, "Документы") {
+                Icon(Icons.Default.Description, contentDescription = null)
+            },
+            BottomTab(Route.Profile, "Профиль") {
+                Icon(Icons.Default.Person, contentDescription = null)
+            }
+        )
+    }
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
@@ -52,45 +90,14 @@ fun BottomNavBar(navController: NavController) {
     NavigationBar(containerColor = NavBarBg) {
 
         tabs.forEach { tab ->
-
-            // 🔥 ВАЖНО: startsWith
-            val selected = currentRoute
-                ?.startsWith(tab.route.value)
-                ?: false
+            val selected = remember(currentRoute) {
+                currentRoute?.startsWith(tab.route.value) == true
+            }
 
             NavigationBarItem(
                 selected = selected,
                 onClick = {
-                    when {
-                        tab.route == Route.Answer && selected -> {
-                            navController.navigate(Route.Answer.value) {
-                                popUpTo(Route.Answer.routeWithOptionalArg) {
-                                    inclusive = true
-                                }
-                                launchSingleTop = true
-                                restoreState = false
-                            }
-                        }
-
-                        tab.route == Route.Home -> {
-                            navController.navigate(Route.Home.value) {
-                                popUpTo(Route.Home.value) {
-                                    inclusive = false
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-
-                        else -> {
-                            navController.navigate(tab.route.value) {
-                                popUpTo(Route.Home.value) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    }
+                    navController.navigateToTab(tab.route, selected)
                 },
                 icon = tab.icon,
                 label = { Text(tab.label) },
