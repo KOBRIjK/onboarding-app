@@ -75,7 +75,7 @@ fun BottomNavBar(navController: NavController) {
                 label = { Text(tab.label) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color.White,
-                    selectedTextColor = AccentCyan,
+                    selectedTextColor = Color.White,
                     unselectedIconColor = Color(0xFF8B93A7),
                     unselectedTextColor = Color(0xFF8B93A7),
                     indicatorColor = Color.Transparent
