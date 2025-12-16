@@ -62,23 +62,38 @@ fun BottomNavBar(navController: NavController) {
             NavigationBarItem(
                 selected = selected,
                 onClick = {
-                    if (tab.route == Route.Answer && selected) {
-                        navController.navigate(Route.Answer.value) {
-                            popUpTo(Route.Answer.value) {
-                                inclusive = true
+                    val startDestinationId = navController.graph
+                        .findStartDestination()
+                        .id
+
+                    when {
+                        tab.route == Route.Answer && selected -> {
+                            navController.navigate(Route.Answer.value) {
+                                popUpTo(Route.Answer.value) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                                restoreState = false
                             }
-                            launchSingleTop = true
                         }
-                    } else {
-                        navController.navigate(tab.route.value) {
-                            val startDestinationId = navController.graph
-                                .findStartDestination()
-                                .id
 
-                            popUpTo(startDestinationId) { saveState = true }
+                        tab.route == Route.Home -> {
+                            navController.navigate(Route.Home.value) {
+                                popUpTo(startDestinationId) {
+                                    inclusive = false
+                                    saveState = false
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
 
-                            launchSingleTop = true
-                            restoreState = true
+                        else -> {
+                            navController.navigate(tab.route.value) {
+                                popUpTo(startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     }
                 },
