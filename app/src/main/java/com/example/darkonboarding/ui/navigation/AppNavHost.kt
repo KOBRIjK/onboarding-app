@@ -18,7 +18,8 @@ import com.example.darkonboarding.ui.screens.tasks.TasksScreen
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    contentPadding: PaddingValues
+    contentPadding: PaddingValues,
+    onLogout: () -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -67,6 +68,6 @@ fun AppNavHost(
 
         composable(Route.Tasks.value) { TasksScreen() }
         composable(Route.Docs.value) { DocsScreen() }
-        composable(Route.Profile.value) { ProfileScreen() }
+        composable(Route.Profile.value) { ProfileScreen(onLogout = onLogout) }
     }
 }
