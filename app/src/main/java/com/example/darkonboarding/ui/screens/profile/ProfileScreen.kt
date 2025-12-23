@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
@@ -39,7 +41,7 @@ import com.example.darkonboarding.ui.theme.TextSecondary
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(onLogout: () -> Unit) {
     val role = remember { mutableStateOf("Backend") }
     val level = remember { mutableStateOf("Middle") }
 
@@ -147,9 +149,27 @@ fun ProfileScreen() {
         Text("Технологии", color = TextSecondary)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             listOf("Python", "Django", "PostgreSQL", "Redis", "Docker", "Kubernetes", "AWS").forEach {
-                TechChip(it)
-            }
+        TechChip(it)
+    }
+
+    GlassCard(padding = PaddingValues(16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Выйти из аккаунта", color = TextPrimary)
+            Icon(
+                Icons.Default.Logout,
+                contentDescription = null,
+                tint = AccentBlue,
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable { onLogout() }
+            )
         }
+    }
+}
     }
 }
 
