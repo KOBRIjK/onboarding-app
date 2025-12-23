@@ -44,9 +44,21 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     implementation("androidx.navigation:navigation-compose:2.8.0")
+    implementation(libs.lifecycle.runtime.compose)
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.coroutines.android)
 
     // XML theme (Material Components)
     implementation("com.google.android.material:material:1.13.0")
+
+    // Networking & JSON
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.moshi)
+    implementation(libs.okhttp.logging)
+    implementation(libs.moshi.kotlin)
+
+    // Secure storage
+    implementation(libs.security.crypto)
 
     // Debug
     debugImplementation("androidx.compose.ui:ui-tooling")
