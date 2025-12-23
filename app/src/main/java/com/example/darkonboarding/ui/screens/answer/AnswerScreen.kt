@@ -1,6 +1,9 @@
 package com.example.darkonboarding.ui.screens.answer
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,9 +20,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,7 +37,12 @@ import com.example.darkonboarding.ui.components.GlassCard
 import com.example.darkonboarding.ui.components.GradientPillButton
 import com.example.darkonboarding.ui.theme.TextPrimary
 import com.example.darkonboarding.ui.theme.TextSecondary
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TextField
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnswerScreen(
     question: String
@@ -54,9 +64,34 @@ fun AnswerScreen(
         // ───────────── ВОПРОС ─────────────
         item {
             GlassCard(padding = PaddingValues(16.dp)) {
-                Text(
-                    text = "Я    $question",
-                    color = TextPrimary
+                var query by remember { mutableStateOf(question) }
+
+                TextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    placeholder = { Text(text = "Поиск ...", color = TextSecondary) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary)
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+
+                        focusedLeadingIconColor = Color.White.copy(alpha = 0.6f),
+                        unfocusedLeadingIconColor = Color.White.copy(alpha = 0.6f),
+
+                        focusedPlaceholderColor = Color.White.copy(alpha = 0.6f),
+                        unfocusedPlaceholderColor = Color.White.copy(alpha = 0.6f),
+
+                        cursorColor = Color.White.copy(alpha = 0.6f),
+                    )
                 )
             }
         }
@@ -85,6 +120,12 @@ fun AnswerScreen(
 
                     Divider(color = TextSecondary.copy(alpha = 0.25f))
 
+                    val rotation by animateFloatAsState(
+                        targetValue = if (expanded) 180f else 0f,
+                        animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
+                        label = "expand_rotation"
+                    )
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -93,10 +134,13 @@ fun AnswerScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Подробнее", color = TextSecondary)
+
+
                         Icon(
                             Icons.Default.ExpandMore,
                             contentDescription = null,
-                            tint = TextSecondary
+                            tint = TextSecondary,
+                            modifier = Modifier.rotate(rotation)
                         )
                     }
 
@@ -146,7 +190,7 @@ fun AnswerScreen(
             Spacer(Modifier.height(8.dp))
             GradientPillButton(
                 text = "Уточнить вопрос",
-                onClick = { /* TODO */ }
+                onClick = { /* TODO Добавить поиск по кнопке (продумать интеграцию с RAG API) */ }
             )
         }
     }

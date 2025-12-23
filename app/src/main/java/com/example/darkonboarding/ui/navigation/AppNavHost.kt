@@ -33,6 +33,11 @@ fun AppNavHost(
                     navController.navigate(
                         Route.Answer.createRoute(question)
                     )
+                },
+                onSearchClick = {
+                    navController.navigate(
+                        Route.Answer.value
+                    )
                 }
             )
         }
@@ -40,7 +45,7 @@ fun AppNavHost(
         // ───────── ANSWER (из BottomBar) ─────────
         composable(Route.Answer.value) {
             AnswerScreen(
-                question = "Задай вопрос или выбери его на главном экране"
+                question = ""
             )
         }
 
