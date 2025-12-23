@@ -1,6 +1,6 @@
 package com.example.darkonboarding.data.auth
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 data class SignupRequest(
     val email: String,
@@ -14,17 +14,17 @@ data class LoginRequest(
 )
 
 data class RefreshRequest(
-    @SerializedName("refresh_token") val refreshToken: String,
+    @Json(name = "refresh_token") val refreshToken: String,
 )
 
 data class LogoutRequest(
-    @SerializedName("refresh_token") val refreshToken: String,
+    @Json(name = "refresh_token") val refreshToken: String,
 )
 
 data class AuthTokens(
-    @SerializedName("access_token") val accessToken: String,
-    @SerializedName("refresh_token") val refreshToken: String,
-    @SerializedName("expires_in") val expiresInSeconds: Long,
+    @Json(name = "access_token") val accessToken: String,
+    @Json(name = "refresh_token") val refreshToken: String,
+    @Json(name = "expires_in") val expiresInSeconds: Long,
 )
 
 data class MeProfile(

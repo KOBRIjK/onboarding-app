@@ -12,6 +12,8 @@
 ### Сетевые сущности
 ```kotlin
 // data/auth/AuthApi.kt
+import com.squareup.moshi.Json
+
 interface AuthApi {
     @POST("auth/signup")
     suspend fun signup(@Body payload: SignupRequest): AuthTokens
@@ -31,13 +33,13 @@ interface AuthApi {
 
 data class SignupRequest(val email: String, val password: String, val name: String)
 data class LoginRequest(val email: String, val password: String)
-data class RefreshRequest(@SerializedName("refresh_token") val refreshToken: String)
-data class LogoutRequest(@SerializedName("refresh_token") val refreshToken: String)
+data class RefreshRequest(@Json(name = "refresh_token") val refreshToken: String)
+data class LogoutRequest(@Json(name = "refresh_token") val refreshToken: String)
 
 data class AuthTokens(
-    @SerializedName("access_token") val accessToken: String,
-    @SerializedName("refresh_token") val refreshToken: String,
-    @SerializedName("expires_in") val expiresInSeconds: Long
+    @Json(name = "access_token") val accessToken: String,
+    @Json(name = "refresh_token") val refreshToken: String,
+    @Json(name = "expires_in") val expiresInSeconds: Long
 )
 ```
 
