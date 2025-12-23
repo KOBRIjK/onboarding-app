@@ -2,6 +2,7 @@
 
 ## Архитектура
 - **Протокол**: REST + JSON, короткоживущий access token (JWT, 15 мин) + долгоживущий refresh token (JWT/opaque, 14–30 дней).
+- **Базовый путь API**: `http://127.0.0.1:8000/api/v1/` с auth-роутами `/auth/signup`, `/auth/login`, `/auth/refresh`, `/auth/logout` и защищённым профилем `GET /me`.
 - **Хранение паролей**: Argon2id (предпочтительно) или bcrypt с уникальной солью и параметрами по безопасности платформы.
 - **Хранение токенов**: на клиенте — `EncryptedSharedPreferences` (Android Keystore) или Keychain; refresh хранится отдельно и читается только в фоне при обновлении.
 - **Валидация**: middleware на backend проверяет подпись access token, срок и audience; при 401 клиент пытается одноразово обновить токен и повторяет запрос.
@@ -12,24 +13,31 @@
 ```kotlin
 // data/auth/AuthApi.kt
 interface AuthApi {
-    @POST("/auth/signup")
+    @POST("auth/signup")
     suspend fun signup(@Body payload: SignupRequest): AuthTokens
 
-    @POST("/auth/login")
+    @POST("auth/login")
     suspend fun login(@Body payload: LoginRequest): AuthTokens
 
-    @POST("/auth/refresh")
+    @POST("auth/refresh")
     suspend fun refresh(@Body payload: RefreshRequest): AuthTokens
+
+    @POST("auth/logout")
+    suspend fun logout(@Body payload: LogoutRequest)
+
+    @GET("me")
+    suspend fun me(): MeProfile
 }
 
 data class SignupRequest(val email: String, val password: String, val name: String)
 data class LoginRequest(val email: String, val password: String)
-data class RefreshRequest(val refreshToken: String)
+data class RefreshRequest(@SerializedName("refresh_token") val refreshToken: String)
+data class LogoutRequest(@SerializedName("refresh_token") val refreshToken: String)
 
 data class AuthTokens(
-    val accessToken: String,
-    val refreshToken: String,
-    val expiresInSeconds: Long
+    @SerializedName("access_token") val accessToken: String,
+    @SerializedName("refresh_token") val refreshToken: String,
+    @SerializedName("expires_in") val expiresInSeconds: Long
 )
 ```
 
@@ -67,37 +75,40 @@ class TokenStorage(context: Context) {
 ```
 
 ### Репозиторий авторизации
-```kotlin
-// data/auth/AuthRepository.kt
-class AuthRepository(
-    private val api: AuthApi,
-    private val storage: TokenStorage
-) {
-    suspend fun signup(email: String, password: String, name: String) {
-        val tokens = api.signup(SignupRequest(email, password, name))
-        storage.save(tokens)
-    }
+  ```kotlin
+  // data/auth/AuthRepository.kt
+  class AuthRepository(
+      private val api: AuthApi,
+      private val storage: TokenStorage
+  ) {
+      suspend fun signup(email: String, password: String, name: String) {
+          val tokens = api.signup(SignupRequest(email, password, name))
+          storage.save(tokens)
+      }
 
-    suspend fun login(email: String, password: String) {
-        val tokens = api.login(LoginRequest(email, password))
-        storage.save(tokens)
-    }
+      suspend fun login(email: String, password: String) {
+          val tokens = api.login(LoginRequest(email, password))
+          storage.save(tokens)
+      }
 
-    suspend fun refresh(): Boolean {
-        val refresh = storage.getRefresh() ?: return false
-        return try {
-            val tokens = api.refresh(RefreshRequest(refresh))
-            storage.save(tokens)
-            true
-        } catch (_: HttpException) {
-            storage.clear()
-            false
-        }
-    }
+      suspend fun refresh(): Boolean {
+          val refresh = storage.getRefresh() ?: return false
+          return try {
+              val tokens = api.refresh(RefreshRequest(refresh))
+              storage.save(tokens)
+              true
+          } catch (_: HttpException) {
+              storage.clear()
+              false
+          }
+      }
 
-    fun logout() { storage.clear() }
-}
-```
+      suspend fun logout() {
+          storage.getRefresh()?.let { api.logout(LogoutRequest(it)) }
+          storage.clear()
+      }
+  }
+  ```
 
 ### Interceptor для автоматического обновления
 ```kotlin

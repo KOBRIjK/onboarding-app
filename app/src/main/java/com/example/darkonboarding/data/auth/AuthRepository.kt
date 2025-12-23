@@ -41,6 +41,13 @@ class AuthRepository(
         }
     }
 
+    suspend fun logoutRemote() {
+        val refresh = tokenStorage.getRefresh() ?: return
+        runCatching {
+            api.logout(LogoutRequest(refreshToken = refresh))
+        }
+    }
+
     suspend fun hasValidSession(): Boolean {
         val access = tokenStorage.getAccess() ?: return false
         if (!tokenStorage.isAccessExpired()) return true
@@ -51,7 +58,8 @@ class AuthRepository(
         }
     }
 
-    fun logout() {
+    suspend fun logout() {
+        logoutRemote()
         tokenStorage.clear()
     }
 
