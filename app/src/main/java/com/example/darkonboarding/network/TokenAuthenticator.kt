@@ -3,6 +3,7 @@ package com.example.darkonboarding.network
 import com.example.darkonboarding.data.auth.AuthApi
 import com.example.darkonboarding.data.auth.RefreshRequest
 import com.example.darkonboarding.data.auth.TokenStorage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Request
@@ -17,7 +18,7 @@ class TokenAuthenticator(
     override fun authenticate(route: Route?, response: Response): Request? {
         if (responseCount(response) >= 2) return null
         val refresh = tokenStorage.getRefresh() ?: return null
-        val newTokens = runBlocking {
+        val newTokens = runBlocking(Dispatchers.IO) {
             try {
                 authApi.refresh(RefreshRequest(refreshToken = refresh))
             } catch (_: Exception) {

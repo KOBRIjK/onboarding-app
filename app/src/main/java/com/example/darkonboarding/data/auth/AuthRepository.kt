@@ -1,37 +1,41 @@
 package com.example.darkonboarding.data.auth
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 
 class AuthRepository(
     private val api: AuthApi,
     private val tokenStorage: TokenStorage,
 ) {
-    suspend fun signup(email: String, password: String, name: String): AuthResult {
-        return performAuthCall {
-            api.signup(
-                SignupRequest(
-                    email = email,
-                    password = password,
-                    name = name,
+    suspend fun signup(email: String, password: String, name: String): AuthResult =
+        withContext(Dispatchers.IO) {
+            performAuthCall {
+                api.signup(
+                    SignupRequest(
+                        email = email,
+                        password = password,
+                        name = name,
+                    )
                 )
-            )
+            }
         }
-    }
 
-    suspend fun login(email: String, password: String): AuthResult {
-        return performAuthCall {
-            api.login(
-                LoginRequest(
-                    email = email,
-                    password = password,
+    suspend fun login(email: String, password: String): AuthResult =
+        withContext(Dispatchers.IO) {
+            performAuthCall {
+                api.login(
+                    LoginRequest(
+                        email = email,
+                        password = password,
+                    )
                 )
-            )
+            }
         }
-    }
 
-    suspend fun refresh(): Boolean {
-        val refresh = tokenStorage.getRefresh() ?: return false
-        return try {
+    suspend fun refresh(): Boolean = withContext(Dispatchers.IO) {
+        val refresh = tokenStorage.getRefresh() ?: return@withContext false
+        try {
             val tokens = api.refresh(RefreshRequest(refreshToken = refresh))
             tokenStorage.save(tokens)
             true
@@ -41,24 +45,24 @@ class AuthRepository(
         }
     }
 
-    suspend fun logoutRemote() {
-        val refresh = tokenStorage.getRefresh() ?: return
+    suspend fun logoutRemote() = withContext(Dispatchers.IO) {
+        val refresh = tokenStorage.getRefresh() ?: return@withContext
         runCatching {
             api.logout(LogoutRequest(refreshToken = refresh))
         }
     }
 
-    suspend fun hasValidSession(): Boolean {
-        val access = tokenStorage.getAccess() ?: return false
-        if (!tokenStorage.isAccessExpired()) return true
-        return refresh().also { isValid ->
+    suspend fun hasValidSession(): Boolean = withContext(Dispatchers.IO) {
+        val access = tokenStorage.getAccess() ?: return@withContext false
+        if (!tokenStorage.isAccessExpired()) return@withContext true
+        refresh().also { isValid ->
             if (!isValid && access.isNotEmpty()) {
                 tokenStorage.clear()
             }
         }
     }
 
-    suspend fun logout() {
+    suspend fun logout() = withContext(Dispatchers.IO) {
         logoutRemote()
         tokenStorage.clear()
     }
