@@ -1,5 +1,7 @@
 package com.example.darkonboarding.ui.auth
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -161,9 +163,9 @@ fun AuthScreen(
 @Composable
 private fun Modifier.clickableNoRipple(onClick: () -> Unit): Modifier {
     return this.then(
-        androidx.compose.foundation.clickable(
+        clickable(
             indication = null,
-            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+            interactionSource = remember { MutableInteractionSource() }
         ) { onClick() }
     )
 }
