@@ -1,0 +1,89 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: onboarding-backend
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://onboarding:onboarding_password@backend-postgres:5432/onboarding
+      CONFLUENCE_BASE_URL: http://confluence:8090
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/storage:/app/storage
+    depends_on:
+      backend-postgres:
+        condition: service_healthy
+    networks:
+      - confluence-network
+    restart: unless-stopped
+
+  confluence:
+    image: haxqer/confluence
+    container_name: confluence-srv
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./confluence:/var/confluence
+    environment:
+      TZ: Asia/Shanghai
+
+      # PostgreSQL connection
+      ATL_JDBC_URL: jdbc:postgresql://postgres:5432/confluence
+      ATL_JDBC_USER: confluence
+      ATL_JDBC_PASSWORD: confluence_password
+      ATL_DB_TYPE: postgresql
+      ATL_DB_DRIVER: org.postgresql.Driver
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - confluence-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    container_name: confluence-postgres
+    environment:
+      POSTGRES_DB: confluence
+      POSTGRES_USER: confluence
+      POSTGRES_PASSWORD: confluence_password
+      TZ: Asia/Shanghai
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    networks:
+      - confluence-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U confluence -d confluence"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend-postgres:
+    image: postgres:15
+    container_name: onboarding-postgres
+    environment:
+      POSTGRES_DB: onboarding
+      POSTGRES_USER: onboarding
+      POSTGRES_PASSWORD: onboarding_password
+      TZ: Asia/Shanghai
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./backend/postgres:/var/lib/postgresql/data
+    networks:
+      - confluence-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U onboarding -d onboarding"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  confluence-network:
+    name: confluence-network
+    driver: bridge

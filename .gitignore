@@ -36,6 +36,19 @@ out/
 *.log
 
 # =========================
+# Python / Backend
+# =========================
+__pycache__/
+*.py[cod]
+.venv/
+backend/.env
+backend/*.db
+backend/postgres/
+backend/storage/
+confluence/
+postgres/
+
+# =========================
 # OS files
 # =========================
 .DS_Store

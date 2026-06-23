@@ -1,0 +1,17 @@
+argon2-cffi
+accelerate
+email-validator
+faiss-cpu
+fastapi
+langchain
+langchain-community
+langchain-huggingface
+langchain-text-splitters
+passlib[bcrypt]
+pydantic-settings
+psycopg[binary]
+PyJWT
+sentence-transformers
+sqlalchemy
+transformers
+uvicorn[standard]

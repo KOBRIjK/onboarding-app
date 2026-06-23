@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.darkonboarding.ui.components.GlassCard
+import com.example.darkonboarding.ui.components.GradientPillButton
 import com.example.darkonboarding.ui.components.SelectChip
 import com.example.darkonboarding.ui.theme.AccentBlue
 import com.example.darkonboarding.ui.theme.AccentCyan
@@ -39,7 +40,9 @@ import com.example.darkonboarding.ui.theme.TextSecondary
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    onLogout: () -> Unit = {}
+) {
     val role = remember { mutableStateOf("Backend") }
     val level = remember { mutableStateOf("Middle") }
 
@@ -150,6 +153,12 @@ fun ProfileScreen() {
                 TechChip(it)
             }
         }
+
+        GradientPillButton(
+            text = "Выйти",
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onLogout
+        )
     }
 }
 
